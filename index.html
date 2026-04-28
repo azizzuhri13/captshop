@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth scroll-pt-24">
+<html lang="id" class="scroll-smooth scroll-pt-20">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,7 +31,7 @@
             box-shadow: 0px 0px 0px 0px #000;
         }
         
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-left: 1px solid black; }
         ::-webkit-scrollbar-thumb { background: #000; border-radius: 4px; }
     </style>
@@ -39,11 +39,19 @@
 <body class="text-black pb-20">
 
     <!-- Navbar -->
-    <nav class="sticky top-0 z-40 bg-white neo-border border-t-0 border-l-0 border-r-0 px-6 py-4 flex justify-between items-center mb-8">
-        <div class="flex items-center gap-3">
-            <div class="bg-black text-white px-2 py-1 rounded-lg font-bold text-xl neo-shadow-sm">CS</div>
-            <h1 class="font-bold text-xl">Captshop.id</h1>
+    <nav class="sticky top-0 z-40 bg-white neo-border border-t-0 border-l-0 border-r-0 px-4 md:px-6 py-3 md:py-4 flex justify-between items-center mb-6 md:mb-8">
+        <div class="flex items-center gap-2 md:gap-3">
+            <div class="bg-black text-white px-2 py-1 rounded-lg font-bold text-lg md:text-xl neo-shadow-sm">CS</div>
+            <h1 class="font-bold text-lg md:text-xl tracking-tight">Captshop.id</h1>
         </div>
+        
+        <!-- Hamburger Menu untuk Mobile -->
+        <button class="md:hidden neo-btn bg-white w-8 h-8 rounded-full flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+
         <div class="hidden md:flex gap-6 font-semibold items-center">
             <a href="#beranda" class="hover:text-blue-600">Beranda</a>
             <a href="#layanan" class="hover:text-blue-600">Layanan</a>
@@ -55,55 +63,63 @@
         </div>
     </nav>
 
-    <div class="max-w-6xl mx-auto px-4">
+    <div class="max-w-6xl mx-auto px-4 md:px-6">
         
         <!-- Hero Section -->
-        <div id="beranda" class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 items-center pt-4">
+        <div id="beranda" class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-10 items-center pt-2">
             <div>
-                <div class="inline-block bg-yellow-300 neo-border rounded-full px-4 py-1 text-sm font-bold mb-4 neo-shadow-sm">
+                <div class="inline-block bg-yellow-300 neo-border rounded-full px-3 py-1 text-[10px] md:text-sm font-bold mb-3 md:mb-4 neo-shadow-sm">
                     🔥 SEBAGIAN YANG KAMU BUTUHIN ADA DISINI!
                 </div>
-                <h2 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">Pricelist Aplikasi Premium Captshop.id</h2>
-                <p class="text-gray-600 font-medium mb-8">Langsung cek pilihan layanan sekarang juga!</p>
+                <!-- Perbaikan Ukuran Font Mobile -->
+                <h2 class="text-3xl md:text-5xl font-extrabold mb-2 md:mb-4 leading-tight">Pricelist Aplikasi Premium Captshop.id</h2>
+                <p class="text-gray-600 text-sm md:text-base font-medium mb-6">Langsung cek pilihan layanan sekarang juga!</p>
                 
                 <div class="flex flex-wrap gap-4">
-                    <div class="bg-white neo-border neo-shadow rounded-xl p-3 flex items-center gap-3">
-                        <div class="text-2xl">🕒</div>
+                    <div class="bg-white neo-border neo-shadow-sm rounded-xl p-2 md:p-3 flex items-center gap-3 w-full sm:w-auto">
+                        <div class="text-lg md:text-2xl bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center">🕒</div>
                         <div>
-                            <div class="font-bold">Jam Operasional</div>
-                            <div class="text-xs text-gray-600">Setiap hari, 07:00 - 21:30 WIB</div>
+                            <div class="font-bold text-xs md:text-sm">Jam Operasional</div>
+                            <div class="text-[10px] md:text-xs text-gray-600">Setiap hari, 07:00 - 21:30 WIB</div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-3 gap-4 mt-6">
-                    <div class="bg-white neo-border neo-shadow-sm rounded-xl p-3 text-center">
-                        <div class="font-extrabold text-xl">999+</div>
-                        <div class="text-xs">Pengguna</div>
+                <!-- Grid Statistik 2x2 di Mobile -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mt-4 md:mt-6">
+                    <div class="bg-white neo-border neo-shadow-sm rounded-xl p-2 md:p-3 text-center">
+                        <div class="font-extrabold text-lg md:text-xl">999+</div>
+                        <div class="text-[10px] md:text-xs font-semibold">Pengguna</div>
                     </div>
-                    <div class="bg-white neo-border neo-shadow-sm rounded-xl p-3 text-center">
-                        <div class="font-extrabold text-xl">9.999+</div>
-                        <div class="text-xs">Transaksi</div>
+                    <div class="bg-white neo-border neo-shadow-sm rounded-xl p-2 md:p-3 text-center">
+                        <div class="font-extrabold text-lg md:text-xl">9.999+</div>
+                        <div class="text-[10px] md:text-xs font-semibold">Transaksi</div>
                     </div>
-                    <div class="bg-white neo-border neo-shadow-sm rounded-xl p-3 text-center">
-                        <div class="font-extrabold text-xl">8.5/10</div>
-                        <div class="text-xs">Kepuasan</div>
+                    <!-- Ditambahkan agar simetris -->
+                    <div class="bg-white neo-border neo-shadow-sm rounded-xl p-2 md:p-3 text-center">
+                        <div class="font-extrabold text-lg md:text-xl">22</div>
+                        <div class="text-[10px] md:text-xs font-semibold">Layanan</div>
+                    </div>
+                    <div class="bg-white neo-border neo-shadow-sm rounded-xl p-2 md:p-3 text-center">
+                        <div class="font-extrabold text-lg md:text-xl">8.5/10</div>
+                        <div class="text-[10px] md:text-xs font-semibold">Kepuasan</div>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-blue-400 rounded-2xl neo-border neo-shadow p-2">
-                <div class="bg-white rounded-xl neo-border p-4 flex flex-col gap-3">
-                    <div class="neo-border rounded-lg p-3 font-semibold flex items-center gap-3">
+            <!-- Keunggulan Section -->
+            <div class="bg-blue-400 rounded-2xl neo-border neo-shadow-sm md:neo-shadow p-2 mt-4 lg:mt-0">
+                <div class="bg-white rounded-xl neo-border p-3 md:p-4 flex flex-col gap-2 md:gap-3">
+                    <div class="neo-border rounded-lg p-2 md:p-3 font-semibold text-xs md:text-base flex items-center gap-3">
                         <span>💰</span> Hemat hingga 70%
                     </div>
-                    <div class="neo-border rounded-lg p-3 font-semibold flex items-center gap-3">
+                    <div class="neo-border rounded-lg p-2 md:p-3 font-semibold text-xs md:text-base flex items-center gap-3">
                         <span>🔒</span> Semua Akun Private
                     </div>
-                    <div class="neo-border rounded-lg p-3 font-semibold flex items-center gap-3">
+                    <div class="neo-border rounded-lg p-2 md:p-3 font-semibold text-xs md:text-base flex items-center gap-3">
                         <span>🎧</span> CS Mudah Dihubungi
                     </div>
-                    <div class="neo-border rounded-lg p-3 font-semibold flex items-center gap-3">
+                    <div class="neo-border rounded-lg p-2 md:p-3 font-semibold text-xs md:text-base flex items-center gap-3">
                         <span>⭐</span> Harga Khusus Reseller
                     </div>
                 </div>
@@ -111,31 +127,34 @@
         </div>
 
         <!-- Filters & Search -->
-        <div id="layanan" class="mb-8">
-            <h3 class="text-2xl font-bold mb-4">Produk Digital</h3>
-            <div class="flex flex-wrap items-center gap-3">
+        <div id="layanan" class="mb-6 md:mb-8 mt-12">
+            <h3 class="text-xl md:text-2xl font-bold mb-3 md:mb-4">Produk Digital</h3>
+            <div class="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
                 <div class="relative w-full md:w-64">
-                    <input type="text" placeholder="Cari layanan..." class="w-full neo-border rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-yellow-300">
-                    <span class="absolute left-3 top-2.5 text-gray-400">🔍</span>
+                    <input type="text" placeholder="Cari layanan..." class="w-full text-sm md:text-base neo-border rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-yellow-300">
+                    <span class="absolute left-3 top-2 md:top-2.5 text-gray-400 text-sm md:text-base">🔍</span>
                 </div>
-                <div class="text-sm font-semibold text-gray-500 px-2">Semua Kategori</div>
-                <button class="neo-btn bg-yellow-300 rounded-full px-4 py-1.5 font-bold text-sm">Semua</button>
-                <button class="neo-btn bg-white rounded-full px-4 py-1.5 font-bold text-sm">Cloud</button>
-                <button class="neo-btn bg-white rounded-full px-4 py-1.5 font-bold text-sm">Education</button>
-                <button class="neo-btn bg-white rounded-full px-4 py-1.5 font-bold text-sm">Entertainment</button>
+                <!-- Filter Scrollable di Mobile -->
+                <div class="flex overflow-x-auto pb-2 md:pb-0 items-center gap-2 no-scrollbar">
+                    <div class="text-xs md:text-sm font-semibold text-gray-500 px-1 whitespace-nowrap hidden md:block">Semua Kategori</div>
+                    <button class="neo-btn bg-yellow-300 rounded-full px-3 py-1.5 md:px-4 md:py-1.5 font-bold text-xs md:text-sm whitespace-nowrap">Semua</button>
+                    <button class="neo-btn bg-white rounded-full px-3 py-1.5 md:px-4 md:py-1.5 font-bold text-xs md:text-sm whitespace-nowrap">Cloud</button>
+                    <button class="neo-btn bg-white rounded-full px-3 py-1.5 md:px-4 md:py-1.5 font-bold text-xs md:text-sm whitespace-nowrap">Education</button>
+                    <button class="neo-btn bg-white rounded-full px-3 py-1.5 md:px-4 md:py-1.5 font-bold text-xs md:text-sm whitespace-nowrap">Entertainment</button>
+                </div>
             </div>
         </div>
 
         <!-- Product Grid -->
-        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <p class="font-bold">Memuat produk dari database...</p>
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <p class="font-bold text-sm md:text-base">Memuat produk dari database...</p>
         </div>
 
         <!-- Cara Berlangganan Section -->
-        <div id="cara-berlangganan" class="mt-16 mb-8">
-            <div class="bg-white neo-border rounded-2xl p-6 md:p-8 shadow-[8px_8px_0px_0px_#f472b6]">
-                <h3 class="text-2xl font-extrabold mb-4">Cara Berlangganan</h3>
-                <ol class="list-decimal pl-5 space-y-2 text-gray-800 font-medium">
+        <div id="cara-berlangganan" class="mt-12 md:mt-16 mb-8">
+            <div class="bg-white neo-border rounded-2xl p-5 md:p-8 shadow-[6px_6px_0px_0px_#f472b6] md:shadow-[8px_8px_0px_0px_#f472b6]">
+                <h3 class="text-xl md:text-2xl font-extrabold mb-3 md:mb-4">Cara Berlangganan</h3>
+                <ol class="list-decimal pl-5 space-y-2 text-sm md:text-base text-gray-800 font-medium">
                     <li>Pilih layanan & paket (klik harga atau durasi).</li>
                     <li>Klik <strong class="text-black font-extrabold">Pesan</strong> untuk chat admin.</li>
                     <li>Ikuti instruksi pembayaran & aktivasi.</li>
@@ -144,19 +163,19 @@
         </div>
 
         <!-- FAQ Section -->
-        <div id="faq" class="mb-16">
-            <div class="bg-white neo-border rounded-2xl p-6 md:p-8 shadow-[8px_8px_0px_0px_#4ade80]">
-                <h3 class="text-2xl font-extrabold mb-4">FAQ</h3>
-                <ul class="space-y-3 text-gray-800 font-medium">
-                    <li class="flex items-start gap-3">
+        <div id="faq" class="mb-12 md:mb-16">
+            <div class="bg-white neo-border rounded-2xl p-5 md:p-8 shadow-[6px_6px_0px_0px_#4ade80] md:shadow-[8px_8px_0px_0px_#4ade80]">
+                <h3 class="text-xl md:text-2xl font-extrabold mb-3 md:mb-4">FAQ</h3>
+                <ul class="space-y-3 text-sm md:text-base text-gray-800 font-medium">
+                    <li class="flex items-start gap-2 md:gap-3">
                         <span class="text-green-500 font-bold">✓</span>
                         <span>Kami mendukung transfer bank, e-wallet populer dan juga QRIS.</span>
                     </li>
-                    <li class="flex items-start gap-3">
+                    <li class="flex items-start gap-2 md:gap-3">
                         <span class="text-green-500 font-bold">✓</span>
                         <span>Pengiriman instan maksimal 24 jam tergantung produk. Admin akan selalu infokan ke pelanggan jika mengalami keterlambatan.</span>
                     </li>
-                    <li class="flex items-start gap-3">
+                    <li class="flex items-start gap-2 md:gap-3">
                         <span class="text-green-500 font-bold">✓</span>
                         <span>Garansi tergantung yang ada di deskripsi produk. Tim support siap bantu.</span>
                     </li>
@@ -165,7 +184,7 @@
         </div>
         
         <!-- Footer -->
-        <footer class="mt-16 pt-4 text-gray-600 text-sm font-medium border-t-2 border-black">
+        <footer class="mt-10 md:mt-16 pt-4 text-gray-600 text-xs md:text-sm font-medium border-t-2 border-black">
             © 2026 Captshop.id
         </footer>
 
@@ -175,26 +194,26 @@
     <div id="modal-overlay" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white neo-border neo-shadow-lg rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto flex flex-col">
             
-            <div class="p-4 border-b-2 border-black flex justify-between items-center sticky top-0 bg-white z-10">
-                <h3 id="modal-title" class="font-bold text-lg">Nama Produk</h3>
+            <div class="p-3 md:p-4 border-b-2 border-black flex justify-between items-center sticky top-0 bg-white z-10">
+                <h3 id="modal-title" class="font-bold text-base md:text-lg">Nama Produk</h3>
                 <button onclick="closeModal()" class="neo-btn bg-white w-8 h-8 rounded-full flex items-center justify-center font-bold">X</button>
             </div>
             
-            <div class="p-6">
-                <div class="bg-gray-50 neo-border rounded-xl p-4 flex justify-between items-center mb-6">
+            <div class="p-4 md:p-6">
+                <div class="bg-gray-50 neo-border rounded-xl p-3 md:p-4 flex justify-between items-center mb-4 md:mb-6">
                     <div>
-                        <div class="text-xs font-bold text-gray-500 mb-1">Paket Terpilih:</div>
-                        <div id="modal-variant" class="font-extrabold text-lg">-</div>
+                        <div class="text-[10px] md:text-xs font-bold text-gray-500 mb-1">Paket Terpilih:</div>
+                        <div id="modal-variant" class="font-extrabold text-base md:text-lg">-</div>
                     </div>
-                    <div id="modal-price" class="font-extrabold text-xl">-</div>
+                    <div id="modal-price" class="font-extrabold text-lg md:text-xl">-</div>
                 </div>
 
-                <div class="neo-border rounded-xl p-5 mb-6">
-                    <h4 class="font-bold text-lg mb-2">Deskripsi</h4>
-                    <p class="text-sm text-gray-700 mb-4" id="modal-desc">
+                <div class="neo-border rounded-xl p-4 md:p-5 mb-4 md:mb-6">
+                    <h4 class="font-bold text-base md:text-lg mb-2">Deskripsi</h4>
+                    <p class="text-xs md:text-sm text-gray-700 mb-4" id="modal-desc">
                         Aplikasi premium bergaransi dari Captshop.id.
                     </p>
-                    <ul class="text-sm text-gray-700 space-y-1 mb-4 list-disc pl-4">
+                    <ul class="text-xs md:text-sm text-gray-700 space-y-1 mb-4 list-disc pl-4">
                         <li>Proses menggunakan akun pembeli atau admin.</li>
                         <li>Dapat diperpanjang saat durasi habis.</li>
                         <li>Support semua perangkat.</li>
@@ -203,9 +222,9 @@
                 </div>
             </div>
             
-            <div class="p-4 border-t-2 border-black bg-white sticky bottom-0 flex justify-end gap-3">
-                <button onclick="closeModal()" class="neo-btn bg-white rounded-xl px-6 py-2 font-bold">Tutup</button>
-                <button class="neo-btn bg-yellow-300 rounded-xl px-6 py-2 font-bold">Pesan Sekarang</button>
+            <div class="p-3 md:p-4 border-t-2 border-black bg-white sticky bottom-0 flex justify-end gap-2 md:gap-3">
+                <button onclick="closeModal()" class="neo-btn bg-white rounded-xl px-4 md:px-6 py-2 font-bold text-sm md:text-base">Tutup</button>
+                <button class="neo-btn bg-yellow-300 rounded-xl px-4 md:px-6 py-2 font-bold text-sm md:text-base">Pesan Sekarang</button>
             </div>
         </div>
     </div>
@@ -215,7 +234,7 @@
         // --- KONFIGURASI SUPABASE ---
         const SUPABASE_URL = 'https://rymfgpivinapkeqkxuqf.supabase.co/rest/v1/products';
         // PENTING: Ganti dengan Publishable Key Anda!
-        const SUPABASE_KEY = 'sb_publishable_P2m6JpWkZEceFmop-HvqQw_1_CY9UWG'; 
+        const SUPABASE_KEY = 'PASTE_PUBLISHABLE_KEY_ANDA_DISINI'; 
 
         document.addEventListener('DOMContentLoaded', async () => {
             const grid = document.getElementById('product-grid');
@@ -263,7 +282,7 @@
 
             } catch (error) {
                 console.error('Error fetching data:', error);
-                grid.innerHTML = '<p class="text-red-500 font-bold">Gagal memuat data dari database. Pastikan API Key benar.</p>';
+                grid.innerHTML = '<p class="text-red-500 text-sm md:text-base font-bold">Gagal memuat data dari database. Pastikan API Key benar.</p>';
             }
         });
 
@@ -272,17 +291,17 @@
             grid.innerHTML = ''; 
 
             if (!products || products.length === 0) {
-                grid.innerHTML = '<p>Belum ada produk di database.</p>';
+                grid.innerHTML = '<p class="text-sm md:text-base">Belum ada produk di database.</p>';
                 return;
             }
 
             products.forEach((product) => {
                 let variantsHTML = product.variants.map((v) => `
-                    <div class="flex justify-between items-center neo-border rounded-lg px-3 py-2 mb-2 ${!v.isAvailable ? 'bg-gray-50 opacity-70' : 'bg-white cursor-pointer hover:bg-yellow-50'}">
-                        <span class="text-sm font-semibold">${v.duration}</span>
+                    <div class="flex justify-between items-center neo-border rounded-lg px-2 md:px-3 py-1.5 md:py-2 mb-2 ${!v.isAvailable ? 'bg-gray-50 opacity-70' : 'bg-white cursor-pointer hover:bg-yellow-50'}">
+                        <span class="text-xs md:text-sm font-semibold">${v.duration}</span>
                         ${v.isAvailable 
-                            ? `<span class="text-sm font-extrabold">${v.price}</span>` 
-                            : `<span class="bg-red-400 text-white text-[10px] px-2 py-0.5 rounded font-bold neo-border border-[1px]">KOSONG</span>`
+                            ? `<span class="text-xs md:text-sm font-extrabold">${v.price}</span>` 
+                            : `<span class="bg-red-400 text-white text-[9px] md:text-[10px] px-1.5 py-0.5 rounded font-bold neo-border border-[1px]">KOSONG</span>`
                         }
                     </div>
                 `).join('');
@@ -290,26 +309,26 @@
                 const safeDuration = product.variants[0] ? product.variants[0].duration : '-';
                 const safePrice = product.variants[0] ? product.variants[0].price : '-';
 
-                // Render ikon berupa Gambar (Base64) atau Emoji teks
+                // Render ikon berupa Gambar atau Emoji teks
                 const isImage = product.icon && (product.icon.startsWith('http') || product.icon.startsWith('data:image'));
                 const iconHtml = isImage 
-                    ? `<img src="${product.icon}" class="h-12 w-12 object-contain mx-auto mb-2 rounded" alt="${product.name}">`
-                    : `<div class="text-4xl mb-2 ${product.iconColor}">${product.icon}</div>`;
+                    ? `<img src="${product.icon}" class="h-10 w-10 md:h-12 md:w-12 object-contain mx-auto mb-2 rounded" alt="${product.name}">`
+                    : `<div class="text-3xl md:text-4xl mb-2 ${product.iconColor}">${product.icon}</div>`;
 
                 const cardHTML = `
-                    <div class="bg-white neo-border neo-shadow rounded-2xl p-4 flex flex-col h-full">
-                        <div class="text-center mb-4 mt-2">
+                    <div class="bg-white neo-border neo-shadow-sm md:neo-shadow rounded-2xl p-3 md:p-4 flex flex-col h-full">
+                        <div class="text-center mb-3 md:mb-4 mt-1 md:mt-2">
                             ${iconHtml}
-                            <h3 class="font-extrabold text-lg">${product.name}</h3>
+                            <h3 class="font-extrabold text-base md:text-lg">${product.name}</h3>
                         </div>
                         
                         <div class="flex-grow flex flex-col justify-center">
                             ${variantsHTML}
                         </div>
 
-                        <div class="grid grid-cols-2 gap-2 mt-4 pt-2">
-                            <button onclick="openModal('${product.name}', '${safeDuration}', '${safePrice}')" class="neo-btn bg-white text-sm font-bold py-2 rounded-xl border-blue-500 border-b-pink-500 shadow-[2px_2px_0px_0px_#000]">Deskripsi</button>
-                            <button class="neo-btn bg-white text-sm font-bold py-2 rounded-xl">Pesan</button>
+                        <div class="grid grid-cols-2 gap-2 mt-3 md:mt-4 pt-2">
+                            <button onclick="openModal('${product.name}', '${safeDuration}', '${safePrice}')" class="neo-btn bg-white text-xs md:text-sm font-bold py-1.5 md:py-2 rounded-xl border-blue-500 border-b-pink-500 shadow-[2px_2px_0px_0px_#000]">Deskripsi</button>
+                            <button class="neo-btn bg-white text-xs md:text-sm font-bold py-1.5 md:py-2 rounded-xl">Pesan</button>
                         </div>
                     </div>
                 `;
