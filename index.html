@@ -71,7 +71,6 @@
                 <div class="inline-block bg-yellow-300 neo-border rounded-full px-3 py-1 text-[10px] md:text-sm font-bold mb-3 md:mb-4 neo-shadow-sm">
                     🔥 SEBAGIAN YANG KAMU BUTUHIN ADA DISINI!
                 </div>
-                <!-- Perbaikan Ukuran Font Mobile -->
                 <h2 class="text-3xl md:text-5xl font-extrabold mb-2 md:mb-4 leading-tight">Pricelist Aplikasi Premium Captshop.id</h2>
                 <p class="text-gray-600 text-sm md:text-base font-medium mb-6">Langsung cek pilihan layanan sekarang juga!</p>
                 
@@ -95,7 +94,6 @@
                         <div class="font-extrabold text-lg md:text-xl">9.999+</div>
                         <div class="text-[10px] md:text-xs font-semibold">Transaksi</div>
                     </div>
-                    <!-- Ditambahkan agar simetris -->
                     <div class="bg-white neo-border neo-shadow-sm rounded-xl p-2 md:p-3 text-center">
                         <div class="font-extrabold text-lg md:text-xl">22</div>
                         <div class="text-[10px] md:text-xs font-semibold">Layanan</div>
@@ -134,7 +132,6 @@
                     <input type="text" placeholder="Cari layanan..." class="w-full text-sm md:text-base neo-border rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-yellow-300">
                     <span class="absolute left-3 top-2 md:top-2.5 text-gray-400 text-sm md:text-base">🔍</span>
                 </div>
-                <!-- Filter Scrollable di Mobile -->
                 <div class="flex overflow-x-auto pb-2 md:pb-0 items-center gap-2 no-scrollbar">
                     <div class="text-xs md:text-sm font-semibold text-gray-500 px-1 whitespace-nowrap hidden md:block">Semua Kategori</div>
                     <button class="neo-btn bg-yellow-300 rounded-full px-3 py-1.5 md:px-4 md:py-1.5 font-bold text-xs md:text-sm whitespace-nowrap">Semua</button>
@@ -218,7 +215,6 @@
             
             <div class="p-3 md:p-4 border-t-2 border-black bg-white sticky bottom-0 flex justify-end gap-2 md:gap-3">
                 <button onclick="closeModal()" class="neo-btn bg-white rounded-xl px-4 md:px-6 py-2 font-bold text-sm md:text-base">Tutup</button>
-                <!-- Tombol Pesan di Modal -->
                 <button onclick="checkoutWA()" class="neo-btn bg-yellow-300 rounded-xl px-4 md:px-6 py-2 font-bold text-sm md:text-base">Pesan Sekarang</button>
             </div>
         </div>
@@ -291,15 +287,28 @@
                 return;
             }
 
-            products.forEach((product) => {
-                let variantsHTML = product.variants.map((v) => {
+            products.forEach((product, pIndex) => {
+                
+                // Cari paket pertama yang "Ada" / Tersedia
+                let firstAvailableIndex = product.variants.findIndex(v => v.isAvailable);
+                if (firstAvailableIndex === -1) firstAvailableIndex = 0;
+
+                let variantsHTML = product.variants.map((v, vIndex) => {
                     let priceDisplay = v.price;
                     if (!isNaN(v.price) && v.price.toString().trim() !== '') {
                         priceDisplay = 'Rp ' + Number(v.price).toLocaleString('id-ID');
                     }
 
+                    // Logika Styling Pemilihan Paket
+                    let isSelected = (vIndex === firstAvailableIndex) && v.isAvailable;
+                    let bgClass = isSelected ? 'bg-yellow-300' : 'bg-white';
+                    let hoverClass = v.isAvailable && !isSelected ? 'hover:bg-yellow-100 cursor-pointer' : '';
+                    let disabledClass = !v.isAvailable ? 'bg-gray-100 opacity-60 cursor-not-allowed' : 'cursor-pointer';
+
                     return `
-                    <div class="flex justify-between items-center neo-border rounded-lg px-2 md:px-3 py-1.5 md:py-2 mb-2 ${!v.isAvailable ? 'bg-gray-50 opacity-70' : 'bg-white cursor-pointer hover:bg-yellow-50'}">
+                    <div id="variant-${pIndex}-${vIndex}" 
+                         onclick="${v.isAvailable ? `selectVariant(${pIndex}, ${vIndex}, '${product.name.replace(/'/g, "\\'")}', '${v.duration}', '${priceDisplay}')` : ''}"
+                         class="variant-item-${pIndex} transition-colors flex justify-between items-center neo-border rounded-lg px-2 md:px-3 py-1.5 md:py-2 mb-2 ${disabledClass} ${v.isAvailable ? bgClass : ''} ${hoverClass}">
                         <span class="text-xs md:text-sm font-semibold">${v.duration}</span>
                         ${v.isAvailable 
                             ? `<span class="text-xs md:text-sm font-extrabold">${priceDisplay}</span>` 
@@ -308,8 +317,12 @@
                     </div>
                 `}).join('');
 
-                const safeDuration = product.variants[0] ? product.variants[0].duration : '-';
-                const safePrice = product.variants[0] ? product.variants[0].price : '-';
+                const defaultVar = product.variants[firstAvailableIndex] || {};
+                const safeDuration = defaultVar.duration || '-';
+                let safePrice = defaultVar.price || '-';
+                if (!isNaN(safePrice) && safePrice.toString().trim() !== '') {
+                    safePrice = 'Rp ' + Number(safePrice).toLocaleString('id-ID');
+                }
 
                 const isImage = product.icon && (product.icon.startsWith('http') || product.icon.startsWith('data:image'));
                 const iconHtml = isImage 
@@ -328,14 +341,39 @@
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 mt-3 md:mt-4 pt-2">
-                            <button onclick="openModal('${product.name}', '${safeDuration}', '${safePrice}')" class="neo-btn bg-white text-xs md:text-sm font-bold py-1.5 md:py-2 rounded-xl border-blue-500 border-b-pink-500 shadow-[2px_2px_0px_0px_#000]">Deskripsi</button>
-                            <!-- Tombol Pesan Langsung dari Kartu -->
-                            <button onclick="checkoutWA('${product.name}', '${safeDuration}', '${safePrice}')" class="neo-btn bg-white text-xs md:text-sm font-bold py-1.5 md:py-2 rounded-xl">Pesan</button>
+                            <button id="btn-desc-${pIndex}" onclick="openModal('${product.name.replace(/'/g, "\\'")}', '${safeDuration}', '${safePrice}')" class="neo-btn bg-white text-xs md:text-sm font-bold py-1.5 md:py-2 rounded-xl border-blue-500 border-b-pink-500 shadow-[2px_2px_0px_0px_#000]">Deskripsi</button>
+                            <button id="btn-pesan-${pIndex}" onclick="checkoutWA('${product.name.replace(/'/g, "\\'")}', '${safeDuration}', '${safePrice}')" class="neo-btn bg-white text-xs md:text-sm font-bold py-1.5 md:py-2 rounded-xl">Pesan</button>
                         </div>
                     </div>
                 `;
                 grid.innerHTML += cardHTML;
             });
+        }
+
+        // Fungsi interaktif saat paket dipilih/diklik
+        function selectVariant(pIndex, vIndex, productName, variantName, price) {
+            // 1. Reset warna semua paket di kotak produk ini
+            const allVariants = document.querySelectorAll(`.variant-item-${pIndex}`);
+            allVariants.forEach((el) => {
+                if(!el.classList.contains('cursor-not-allowed')) {
+                    el.classList.remove('bg-yellow-300');
+                    el.classList.add('bg-white', 'hover:bg-yellow-100');
+                }
+            });
+
+            // 2. Beri warna kuning ke paket yang baru saja diklik
+            const selectedEl = document.getElementById(`variant-${pIndex}-${vIndex}`);
+            if(selectedEl) {
+                selectedEl.classList.remove('bg-white', 'hover:bg-yellow-100');
+                selectedEl.classList.add('bg-yellow-300');
+            }
+
+            // 3. Update atribut 'onclick' pada tombol Deskripsi & Pesan
+            const btnDesc = document.getElementById(`btn-desc-${pIndex}`);
+            const btnPesan = document.getElementById(`btn-pesan-${pIndex}`);
+            
+            if(btnDesc) btnDesc.setAttribute('onclick', `openModal('${productName}', '${variantName}', '${price}')`);
+            if(btnPesan) btnPesan.setAttribute('onclick', `checkoutWA('${productName}', '${variantName}', '${price}')`);
         }
 
         function openModal(productName, variantName, price) {
@@ -369,23 +407,18 @@
             let variantName = vName;
             let price = vPrice;
 
-            // Jika pName null, berarti dipanggil dari dalam Modal (Popup)
             if (!productName) {
                 const titleText = document.getElementById('modal-title').innerText;
                 productName = titleText.split(' • ')[0];
                 variantName = document.getElementById('modal-variant').innerText;
                 price = document.getElementById('modal-price').innerText;
             } else {
-                // Jika dipanggil dari luar (kartu), format harganya dulu jika berbentuk angka
                 if (!isNaN(price) && price.toString().trim() !== '') {
                     price = 'Rp ' + Number(price).toLocaleString('id-ID');
                 }
             }
 
-            // Menyusun teks pesanan
             const pesan = `Halo Admin Captshop! 👋\n\nSaya ingin memesan layanan berikut:\n\n📦 *Produk:* ${productName}\n⏱️ *Paket:* ${variantName}\n💰 *Harga:* ${price}\n\nApakah masih tersedia? Mohon info cara pembayarannya ya. Terima kasih!`;
-
-            // Membuka link WhatsApp
             const urlWA = `https://wa.me/${nomorAdmin}?text=${encodeURIComponent(pesan)}`;
             window.open(urlWA, '_blank');
         }
