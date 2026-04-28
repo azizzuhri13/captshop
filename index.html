@@ -290,10 +290,16 @@
                 const safeDuration = product.variants[0] ? product.variants[0].duration : '-';
                 const safePrice = product.variants[0] ? product.variants[0].price : '-';
 
+                // Render ikon berupa Gambar (Base64) atau Emoji teks
+                const isImage = product.icon && (product.icon.startsWith('http') || product.icon.startsWith('data:image'));
+                const iconHtml = isImage 
+                    ? `<img src="${product.icon}" class="h-12 w-12 object-contain mx-auto mb-2 rounded" alt="${product.name}">`
+                    : `<div class="text-4xl mb-2 ${product.iconColor}">${product.icon}</div>`;
+
                 const cardHTML = `
                     <div class="bg-white neo-border neo-shadow rounded-2xl p-4 flex flex-col h-full">
                         <div class="text-center mb-4 mt-2">
-                            <div class="text-4xl mb-2 ${product.iconColor}">${product.icon}</div>
+                            ${iconHtml}
                             <h3 class="font-extrabold text-lg">${product.name}</h3>
                         </div>
                         
