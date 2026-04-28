@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard | Captshop.id</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -19,7 +19,13 @@
     <!-- Container Login -->
     <div id="login-container" class="max-w-md mx-auto mt-20 bg-white neo-border neo-shadow rounded-2xl p-8">
         <h2 class="text-2xl font-extrabold mb-6 text-center">Login Admin</h2>
-        <input type="password" id="pin-input" placeholder="Masukkan PIN Rahasia" class="w-full neo-border rounded-xl py-3 px-4 mb-4 focus:outline-none">
+        
+        <label class="font-bold text-sm mb-1 block">Email Admin</label>
+        <input type="email" id="email-input" placeholder="admin@captshop.id" class="w-full neo-border rounded-xl py-3 px-4 mb-4 focus:outline-none">
+        
+        <label class="font-bold text-sm mb-1 block">Password</label>
+        <input type="password" id="password-input" placeholder="Masukkan Password" class="w-full neo-border rounded-xl py-3 px-4 mb-6 focus:outline-none">
+        
         <button onclick="login()" class="w-full neo-btn bg-yellow-300 rounded-xl py-3 font-bold text-lg">Masuk</button>
         <p id="login-msg" class="text-red-500 font-bold text-center mt-3 hidden"></p>
     </div>
@@ -28,7 +34,10 @@
     <div id="dashboard-container" class="max-w-6xl mx-auto hidden">
         <div class="flex justify-between items-center mb-8">
             <h2 class="text-3xl font-extrabold bg-white neo-border px-4 py-2 inline-block shadow-[4px_4px_0px_0px_#f472b6]">Panel Admin Captshop</h2>
-            <button onclick="openModal()" class="neo-btn bg-green-400 rounded-xl px-6 py-2 font-bold">+ Tambah Produk</button>
+            <div class="space-x-3">
+                <button onclick="logout()" class="neo-btn bg-gray-200 rounded-xl px-4 py-2 font-bold text-sm">Logout</button>
+                <button onclick="openModal()" class="neo-btn bg-green-400 rounded-xl px-6 py-2 font-bold">+ Tambah Produk</button>
+            </div>
         </div>
 
         <div class="bg-white neo-border neo-shadow rounded-2xl overflow-hidden">
@@ -103,11 +112,16 @@
 
     <script>
         // --- KONFIGURASI SUPABASE ---
-        const SUPABASE_URL = 'https://rymfgpivinapkeqkxuqf.supabase.co/rest/v1/products';
+        // PENTING: Ganti dengan Publishable Key Anda!
         const SUPABASE_KEY = 'sb_publishable_P2m6JpWkZEceFmop-HvqQw_1_CY9UWG'; 
-        const ADMIN_PIN = '717717'; 
+        
+        // URL Database Produk
+        const SUPABASE_URL = 'https://rymfgpivinapkeqkxuqf.supabase.co/rest/v1/products';
+        // URL Authentication (Login) Supabase
+        const SUPABASE_AUTH_URL = 'https://rymfgpivinapkeqkxuqf.supabase.co/auth/v1/token?grant_type=password';
 
         let productsData = [];
+        let sessionToken = ''; // Menyimpan token login
 
         function showMsg(id, text) {
             const el = document.getElementById(id);
@@ -115,25 +129,71 @@
         }
 
         function getHeaders() {
-            return { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
+            return { 
+                'apikey': SUPABASE_KEY, 
+                // Menggunakan token hasil login (jika ada), jika tidak gunakan key biasa
+                'Authorization': 'Bearer ' + (sessionToken ? sessionToken : SUPABASE_KEY), 
+                'Content-Type': 'application/json', 
+                'Prefer': 'return=minimal' 
+            };
         }
 
+        // --- SISTEM LOGIN (VERIFIKASI KE SUPABASE) ---
         async function login() {
-            const pin = document.getElementById('pin-input').value;
-            if (pin !== ADMIN_PIN) {
-                showMsg('login-msg', 'PIN Salah!'); return;
+            const email = document.getElementById('email-input').value;
+            const password = document.getElementById('password-input').value;
+
+            if (!email || !password) {
+                showMsg('login-msg', 'Email dan Password wajib diisi!');
+                return;
             }
             
-            showMsg('login-msg', 'Mengecek...');
+            showMsg('login-msg', 'Memverifikasi...');
+            
             try {
-                await reloadData();
+                // Request Login ke API Auth Supabase
+                const authResponse = await fetch(SUPABASE_AUTH_URL, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: email, password: password })
+                });
+
+                const authData = await authResponse.json();
+
+                // Cek jika login gagal (email/pass salah)
+                if (!authResponse.ok) {
+                    showMsg('login-msg', 'Email atau Password salah!');
+                    return;
+                }
+
+                // Berhasil Login! Simpan Token
+                sessionToken = authData.access_token;
+                
+                // Muat Data Dashboard
                 document.getElementById('login-container').classList.add('hidden');
                 document.getElementById('dashboard-container').classList.remove('hidden');
+                
+                await reloadData();
+
             } catch (err) {
-                showMsg('login-msg', 'Gagal memuat database.');
+                showMsg('login-msg', 'Gagal terhubung ke server.');
             }
         }
 
+        function logout() {
+            sessionToken = ''; // Hapus token
+            document.getElementById('email-input').value = '';
+            document.getElementById('password-input').value = '';
+            document.getElementById('login-msg').classList.add('hidden');
+            
+            document.getElementById('dashboard-container').classList.add('hidden');
+            document.getElementById('login-container').classList.remove('hidden');
+        }
+
+        // --- MANAJEMEN DATA PRODUK ---
         async function reloadData() {
             const response = await fetch(SUPABASE_URL + '?select=*&order=id.asc', { headers: getHeaders() });
             productsData = await response.json();
