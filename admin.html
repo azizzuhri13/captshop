@@ -97,6 +97,11 @@
                 </div>
 
                 <div>
+                    <label class="font-bold text-xs md:text-sm mb-1 block">Deskripsi Produk</label>
+                    <textarea id="form-deskripsi" rows="3" class="w-full text-sm md:text-base neo-border rounded-lg py-2 px-3" placeholder="Masukkan detail produk, fitur, garansi, dll..."></textarea>
+                </div>
+
+                <div>
                     <label class="font-bold text-xs md:text-sm mb-1 block">Gambar Ikon (Upload)</label>
                     <input type="file" id="form-ikon-file" accept="image/*" class="w-full text-xs md:text-sm neo-border rounded-lg py-1.5 px-2 bg-white">
                     <img id="ikon-preview" class="mt-2 md:mt-3 h-12 w-12 md:h-16 md:w-16 object-contain rounded-lg neo-border hidden" alt="Preview Ikon">
@@ -205,6 +210,7 @@
                         nama: row.nama,
                         kategori: row.kategori,
                         ikon: row.ikon,
+                        deskripsi: row.deskripsi || '', // Data Deskripsi
                         variants: []
                     };
                 }
@@ -287,6 +293,7 @@
                 document.getElementById('modal-title').innerText = "Edit Produk";
                 document.getElementById('form-old-nama').value = product.nama;
                 document.getElementById('form-nama').value = product.nama;
+                document.getElementById('form-deskripsi').value = product.deskripsi || '';
                 
                 const dropdownKategori = document.getElementById('form-kategori');
                 dropdownKategori.value = product.kategori;
@@ -312,6 +319,7 @@
                 document.getElementById('modal-title').innerText = "Tambah Produk Baru";
                 document.getElementById('form-old-nama').value = "";
                 document.getElementById('form-nama').value = "";
+                document.getElementById('form-deskripsi').value = "";
                 document.getElementById('form-kategori').value = "Entertainment"; 
                 document.getElementById('form-ikon-existing').value = "";
                 
@@ -338,6 +346,7 @@
             const oldNama = document.getElementById('form-old-nama').value;
             const newNama = document.getElementById('form-nama').value;
             const newKategori = document.getElementById('form-kategori').value;
+            const newDeskripsi = document.getElementById('form-deskripsi').value;
             let finalIkonValue = document.getElementById('form-ikon-existing').value;
             const fileInput = document.getElementById('form-ikon-file');
 
@@ -377,17 +386,17 @@
                 }
 
                 // 2. HAPUS DATA LAMA JIKA SEDANG EDIT
-                // Karena database kita strukturnya "flat", kita hapus dulu semua varian lama berdasarkan Nama Produk.
                 if (oldNama) {
                     await fetch(SUPABASE_URL + '?nama=eq.' + encodeURIComponent(oldNama), { 
                         method: 'DELETE', headers: getHeaders() 
                     });
                 }
 
-                // 3. SUSUN DATA BARU (BULK INSERT)
+                // 3. SUSUN DATA BARU (BULK INSERT) TERMASUK DESKRIPSI
                 const bulkPayload = variants.map(v => ({
                     nama: newNama,
                     kategori: newKategori,
+                    deskripsi: newDeskripsi,
                     ikon: finalIkonValue, 
                     warna: 'text-black', 
                     durasi: v.durasi,
@@ -420,7 +429,6 @@
             if(confirm(`PERINGATAN!\nAnda yakin ingin menghapus seluruh paket varian dari produk "${nama}"?`)) {
                 const tbody = document.getElementById('table-body');
                 tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center font-bold text-red-500">Menghapus Produk...</td></tr>';
-                // Menghapus semua baris yang memiliki nama tersebut
                 await fetch(SUPABASE_URL + '?nama=eq.' + encodeURIComponent(nama), { method: 'DELETE', headers: getHeaders() });
                 await reloadData();
             }
