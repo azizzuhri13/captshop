@@ -72,6 +72,9 @@
             
             <div class="p-6 flex flex-col gap-4">
                 <input type="hidden" id="form-id">
+                <input type="hidden" id="form-ikon-existing"> <!-- Menyimpan URL lama jika tidak ganti gambar -->
+                <input type="hidden" id="form-ikon-base64"> <!-- Menyimpan data Base64 gambar baru -->
+
                 <div>
                     <label class="font-bold text-sm mb-1 block">Nama Produk</label>
                     <input type="text" id="form-nama" class="w-full neo-border rounded-lg py-2 px-3">
@@ -80,15 +83,10 @@
                     <label class="font-bold text-sm mb-1 block">Kategori</label>
                     <input type="text" id="form-kategori" class="w-full neo-border rounded-lg py-2 px-3">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="font-bold text-sm mb-1 block">Ikon (Emoji)</label>
-                        <input type="text" id="form-ikon" class="w-full neo-border rounded-lg py-2 px-3">
-                    </div>
-                    <div>
-                        <label class="font-bold text-sm mb-1 block">Warna Ikon</label>
-                        <input type="text" id="form-warna" class="w-full neo-border rounded-lg py-2 px-3">
-                    </div>
+                <div>
+                    <label class="font-bold text-sm mb-1 block">Gambar Ikon (Upload)</label>
+                    <input type="file" id="form-ikon-file" accept="image/*" class="w-full neo-border rounded-lg py-2 px-3 bg-white">
+                    <img id="ikon-preview" class="mt-3 h-16 w-16 object-contain rounded-lg neo-border hidden" alt="Preview Ikon">
                 </div>
                 <div>
                     <label class="font-bold text-sm mb-1 block">Paket / Durasi</label>
@@ -115,10 +113,15 @@
         // PENTING: Ganti dengan Publishable Key Anda!
         const SUPABASE_KEY = 'sb_publishable_P2m6JpWkZEceFmop-HvqQw_1_CY9UWG'; 
         
-        // URL Database Produk
-        const SUPABASE_URL = 'https://rymfgpivinapkeqkxuqf.supabase.co/rest/v1/products';
-        // URL Authentication (Login) Supabase
-        const SUPABASE_AUTH_URL = 'https://rymfgpivinapkeqkxuqf.supabase.co/auth/v1/token?grant_type=password';
+        // URL Database & Auth
+        const PROJECT_URL = 'https://rymfgpivinapkeqkxuqf.supabase.co';
+        const SUPABASE_URL = `${PROJECT_URL}/rest/v1/products`;
+        const SUPABASE_AUTH_URL = `${PROJECT_URL}/auth/v1/token?grant_type=password`;
+        
+        // URL Storage
+        const STORAGE_BUCKET = 'icons';
+        const SUPABASE_STORAGE_API = `${PROJECT_URL}/storage/v1/object/${STORAGE_BUCKET}`;
+        const SUPABASE_STORAGE_PUBLIC = `${PROJECT_URL}/storage/v1/object/public/${STORAGE_BUCKET}`;
 
         let productsData = [];
         let sessionToken = ''; // Menyimpan token login
@@ -131,14 +134,13 @@
         function getHeaders() {
             return { 
                 'apikey': SUPABASE_KEY, 
-                // Menggunakan token hasil login (jika ada), jika tidak gunakan key biasa
                 'Authorization': 'Bearer ' + (sessionToken ? sessionToken : SUPABASE_KEY), 
                 'Content-Type': 'application/json', 
                 'Prefer': 'return=minimal' 
             };
         }
 
-        // --- SISTEM LOGIN (VERIFIKASI KE SUPABASE) ---
+        // --- SISTEM LOGIN ---
         async function login() {
             const email = document.getElementById('email-input').value;
             const password = document.getElementById('password-input').value;
@@ -151,31 +153,22 @@
             showMsg('login-msg', 'Memverifikasi...');
             
             try {
-                // Request Login ke API Auth Supabase
                 const authResponse = await fetch(SUPABASE_AUTH_URL, {
                     method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email, password: password })
                 });
 
                 const authData = await authResponse.json();
 
-                // Cek jika login gagal (email/pass salah)
                 if (!authResponse.ok) {
                     showMsg('login-msg', 'Email atau Password salah!');
                     return;
                 }
 
-                // Berhasil Login! Simpan Token
                 sessionToken = authData.access_token;
-                
-                // Muat Data Dashboard
                 document.getElementById('login-container').classList.add('hidden');
                 document.getElementById('dashboard-container').classList.remove('hidden');
-                
                 await reloadData();
 
             } catch (err) {
@@ -184,11 +177,10 @@
         }
 
         function logout() {
-            sessionToken = ''; // Hapus token
+            sessionToken = ''; 
             document.getElementById('email-input').value = '';
             document.getElementById('password-input').value = '';
             document.getElementById('login-msg').classList.add('hidden');
-            
             document.getElementById('dashboard-container').classList.add('hidden');
             document.getElementById('login-container').classList.remove('hidden');
         }
@@ -208,10 +200,17 @@
             productsData.forEach((row, index) => {
                 const tr = document.createElement('tr');
                 tr.className = "border-b-2 border-gray-200 hover:bg-gray-50";
+                
+                // Cek apakah ikon adalah URL gambar (HTTP)
+                const isImage = row.ikon && row.ikon.startsWith('http');
+                const ikonDisplay = isImage 
+                    ? `<img src="${row.ikon}" alt="ikon" class="w-8 h-8 object-contain mx-auto rounded">`
+                    : `<span class="text-2xl">${row.ikon || '-'}</span>`;
+
                 tr.innerHTML = `
                     <td class="p-4 border-r-2 border-black font-semibold">${row.nama}</td>
                     <td class="p-4 border-r-2 border-black text-sm">${row.kategori}</td>
-                    <td class="p-4 border-r-2 border-black text-center text-2xl">${row.ikon}</td>
+                    <td class="p-4 border-r-2 border-black text-center">${ikonDisplay}</td>
                     <td class="p-4 border-r-2 border-black font-medium">${row.durasi}</td>
                     <td class="p-4 border-r-2 border-black font-bold">${row.harga}</td>
                     <td class="p-4 border-r-2 border-black"><span class="px-2 py-1 text-xs font-bold neo-border rounded ${row.status.toLowerCase() === 'ada' ? 'bg-green-300' : 'bg-red-300'}">${row.status}</span></td>
@@ -226,56 +225,121 @@
 
         function openModal(index = null) {
             document.getElementById('modal-overlay').classList.remove('hidden');
+            const preview = document.getElementById('ikon-preview');
+            const fileInput = document.getElementById('form-ikon-file');
+            fileInput.value = ''; // Reset input file
+            
+            // Hapus value base64 karena tidak dipakai lagi
+            if(document.getElementById('form-ikon-base64')) {
+                 document.getElementById('form-ikon-base64').value = '';
+            }
+
             if (index !== null) {
                 const row = productsData[index];
                 document.getElementById('modal-title').innerText = "Edit Produk";
                 document.getElementById('form-id').value = row.id;
                 document.getElementById('form-nama').value = row.nama;
                 document.getElementById('form-kategori').value = row.kategori;
-                document.getElementById('form-ikon').value = row.ikon;
-                document.getElementById('form-warna').value = row.warna;
+                document.getElementById('form-ikon-existing').value = row.ikon || '';
                 document.getElementById('form-durasi').value = row.durasi;
                 document.getElementById('form-harga').value = row.harga;
                 document.getElementById('form-status').value = row.status;
+
+                // Tampilkan preview gambar jika ada (HTTP URL)
+                if (row.ikon && row.ikon.startsWith('http')) {
+                    preview.src = row.ikon;
+                    preview.classList.remove('hidden');
+                } else {
+                    preview.src = '';
+                    preview.classList.add('hidden');
+                }
             } else {
                 document.getElementById('modal-title').innerText = "Tambah Produk Baru";
                 document.getElementById('form-id').value = "";
                 document.getElementById('form-nama').value = "";
                 document.getElementById('form-kategori').value = "";
-                document.getElementById('form-ikon').value = "";
-                document.getElementById('form-warna').value = "text-blue-500";
+                document.getElementById('form-ikon-existing').value = "";
                 document.getElementById('form-durasi').value = "";
                 document.getElementById('form-harga').value = "";
                 document.getElementById('form-status').value = "Ada";
+                preview.src = '';
+                preview.classList.add('hidden');
             }
         }
 
         function closeModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
 
+        // Tampilkan Preview Lokal saat file dipilih
+        document.getElementById('form-ikon-file').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const preview = document.getElementById('ikon-preview');
+                preview.src = URL.createObjectURL(file);
+                preview.classList.remove('hidden');
+            }
+        });
+
         async function saveData() {
             const btn = document.getElementById('btn-simpan');
-            btn.innerText = "Menyimpan..."; btn.disabled = true;
+            btn.innerText = "Mengunggah & Menyimpan... Mohon tunggu."; 
+            btn.disabled = true;
 
             const id = document.getElementById('form-id').value;
-            const payload = {
-                nama: document.getElementById('form-nama').value,
-                kategori: document.getElementById('form-kategori').value,
-                ikon: document.getElementById('form-ikon').value,
-                warna: document.getElementById('form-warna').value,
-                durasi: document.getElementById('form-durasi').value,
-                harga: document.getElementById('form-harga').value,
-                status: document.getElementById('form-status').value
-            };
+            let finalIkonValue = document.getElementById('form-ikon-existing').value;
+            const fileInput = document.getElementById('form-ikon-file');
 
             try {
+                // 1. UPLOAD GAMBAR KE SUPABASE STORAGE (Hanya jika ada file baru)
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    // Buat nama file unik (timestamp + random string)
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+                    // Lakukan request upload ke Storage API
+                    const uploadResponse = await fetch(`${SUPABASE_STORAGE_API}/${fileName}`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + sessionToken, // Wajib pakai token user yang login
+                            'apikey': SUPABASE_KEY,
+                            'Content-Type': file.type
+                        },
+                        body: file
+                    });
+
+                    if (!uploadResponse.ok) {
+                        const errDetails = await uploadResponse.json();
+                        throw new Error('Gagal unggah gambar: ' + (errDetails.message || 'Cek Policy Storage Supabase Anda'));
+                    }
+
+                    // Susun URL Publik untuk disimpan di database
+                    finalIkonValue = `${SUPABASE_STORAGE_PUBLIC}/${fileName}`;
+                }
+
+                // 2. Susun Payload Database
+                const payload = {
+                    nama: document.getElementById('form-nama').value,
+                    kategori: document.getElementById('form-kategori').value,
+                    ikon: finalIkonValue, // Simpan URL Gambar (Atau URL Lama / Emoji Lama jika tidak ganti gambar)
+                    warna: 'text-black', // Default warna statis
+                    durasi: document.getElementById('form-durasi').value,
+                    harga: document.getElementById('form-harga').value,
+                    status: document.getElementById('form-status').value
+                };
+
+                // 3. Simpan ke Database (Insert atau Update)
                 if (id) {
                     await fetch(`${SUPABASE_URL}?id=eq.${id}`, { method: 'PATCH', headers: getHeaders(), body: JSON.stringify(payload) });
                 } else {
                     await fetch(SUPABASE_URL, { method: 'POST', headers: getHeaders(), body: JSON.stringify(payload) });
                 }
+
                 closeModal();
                 await reloadData();
-            } catch (err) { alert("Terjadi kesalahan"); }
+            } catch (err) { 
+                alert("Terjadi kesalahan: " + err.message); 
+                console.error(err);
+            }
             
             btn.innerText = "Simpan Data"; btn.disabled = false;
         }
