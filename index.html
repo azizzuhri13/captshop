@@ -129,15 +129,16 @@
             <h3 class="text-xl md:text-2xl font-bold mb-3 md:mb-4">Produk Digital</h3>
             <div class="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
                 <div class="relative w-full md:w-64">
-                    <input type="text" placeholder="Cari layanan..." class="w-full text-sm md:text-base neo-border rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-yellow-300">
+                    <input type="text" id="search-input" oninput="handleSearch(event)" placeholder="Cari layanan..." class="w-full text-sm md:text-base neo-border rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-yellow-300">
                     <span class="absolute left-3 top-2 md:top-2.5 text-gray-400 text-sm md:text-base">🔍</span>
                 </div>
                 <div class="flex overflow-x-auto pb-2 md:pb-0 items-center gap-2 no-scrollbar">
                     <div class="text-xs md:text-sm font-semibold text-gray-500 px-1 whitespace-nowrap hidden md:block">Semua Kategori</div>
-                    <button class="neo-btn bg-yellow-300 rounded-full px-3 py-1.5 md:px-4 md:py-1.5 font-bold text-xs md:text-sm whitespace-nowrap">Semua</button>
-                    <button class="neo-btn bg-white rounded-full px-3 py-1.5 md:px-4 md:py-1.5 font-bold text-xs md:text-sm whitespace-nowrap">Cloud</button>
-                    <button class="neo-btn bg-white rounded-full px-3 py-1.5 md:px-4 md:py-1.5 font-bold text-xs md:text-sm whitespace-nowrap">Education</button>
-                    <button class="neo-btn bg-white rounded-full px-3 py-1.5 md:px-4 md:py-1.5 font-bold text-xs md:text-sm whitespace-nowrap">Entertainment</button>
+                    <button id="btn-cat-Semua" onclick="setCategory('Semua')" class="cat-btn neo-btn bg-yellow-300 rounded-full px-3 py-1.5 md:px-4 md:py-1.5 font-bold text-xs md:text-sm whitespace-nowrap">Semua</button>
+                    <button id="btn-cat-Cloud" onclick="setCategory('Cloud')" class="cat-btn neo-btn bg-white rounded-full px-3 py-1.5 md:px-4 md:py-1.5 font-bold text-xs md:text-sm whitespace-nowrap">Cloud</button>
+                    <button id="btn-cat-Education" onclick="setCategory('Education')" class="cat-btn neo-btn bg-white rounded-full px-3 py-1.5 md:px-4 md:py-1.5 font-bold text-xs md:text-sm whitespace-nowrap">Education</button>
+                    <button id="btn-cat-Entertainment" onclick="setCategory('Entertainment')" class="cat-btn neo-btn bg-white rounded-full px-3 py-1.5 md:px-4 md:py-1.5 font-bold text-xs md:text-sm whitespace-nowrap">Entertainment</button>
+                    <button id="btn-cat-Productivity" onclick="setCategory('Productivity')" class="cat-btn neo-btn bg-white rounded-full px-3 py-1.5 md:px-4 md:py-1.5 font-bold text-xs md:text-sm whitespace-nowrap">Productivity</button>
                 </div>
             </div>
         </div>
@@ -228,6 +229,9 @@
         const SUPABASE_KEY = 'sb_publishable_P2m6JpWkZEceFmop-HvqQw_1_CY9UWG'; 
 
         let globalProducts = {}; 
+        let allProductsArray = []; // Array statis untuk menampung semua data produk
+        let currentCategory = 'Semua'; // State Kategori yang aktif
+        let searchQuery = ''; // State Kata kunci pencarian
 
         document.addEventListener('DOMContentLoaded', async () => {
             const grid = document.getElementById('product-grid');
@@ -269,8 +273,8 @@
                     }
                 });
 
-                const productsData = Object.values(globalProducts);
-                renderProducts(productsData);
+                allProductsArray = Object.values(globalProducts);
+                applyFilters(); // Render awal menggunakan fungsi filter
 
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -283,7 +287,7 @@
             grid.innerHTML = ''; 
 
             if (!products || products.length === 0) {
-                grid.innerHTML = '<p class="col-span-full text-center font-bold">Belum ada produk.</p>';
+                grid.innerHTML = '<p class="col-span-full text-center font-bold text-gray-500 py-10">Produk tidak ditemukan.</p>';
                 return;
             }
 
@@ -398,10 +402,52 @@
             document.getElementById('modal-overlay').classList.add('hidden');
         }
 
+        // --- FUNGSI FILTER & PENCARIAN ---
+        function handleSearch(event) {
+            searchQuery = event.target.value.toLowerCase();
+            applyFilters(); // Panggil fungsi saring data
+        }
+
+        function setCategory(category) {
+            currentCategory = category;
+            
+            // 1. Reset warna semua tombol kategori ke putih
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.remove('bg-yellow-300');
+                btn.classList.add('bg-white');
+            });
+
+            // 2. Beri warna kuning ke tombol yang sedang diklik
+            const activeBtn = document.getElementById(`btn-cat-${category}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-white');
+                activeBtn.classList.add('bg-yellow-300');
+            }
+
+            applyFilters(); // Panggil fungsi saring data
+        }
+
+        function applyFilters() {
+            let filtered = allProductsArray;
+
+            // Menyaring data berdasarkan Kategori
+            if (currentCategory !== 'Semua') {
+                filtered = filtered.filter(p => p.category === currentCategory);
+            }
+
+            // Menyaring data berdasarkan Kotak Pencarian
+            if (searchQuery.trim() !== '') {
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(searchQuery));
+            }
+
+            // Render ulang produk yang sudah disaring
+            renderProducts(filtered);
+        }
+
         // --- FUNGSI CHECKOUT WHATSAPP ---
         function checkoutWA(pName = null, vName = null, vPrice = null) {
             // Ganti dengan Nomor WhatsApp Anda (awali dengan 62)
-            const nomorAdmin = "6282260677717"; 
+            const nomorAdmin = "6281234567890"; 
 
             let productName = pName;
             let variantName = vName;
